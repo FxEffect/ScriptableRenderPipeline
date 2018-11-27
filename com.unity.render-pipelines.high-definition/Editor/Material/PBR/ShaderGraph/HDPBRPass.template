@@ -136,7 +136,7 @@ $features.modifyMesh:   $include("VertexAnimation.template.hlsl")
 $include("SharedCode.template.hlsl")
 
 
-    void BuildSurfaceData(FragInputs fragInputs, SurfaceDescription surfaceDescription, float3 V, out SurfaceData surfaceData)
+    void BuildSurfaceData(FragInputs fragInputs, inout SurfaceDescription surfaceDescription, float3 V, PositionInputs posInput, out SurfaceData surfaceData)
     {
         // setup defaults -- these are used if the graph doesn't output a value
         ZERO_INITIALIZE(SurfaceData, surfaceData);
@@ -213,7 +213,7 @@ $include("SharedCode.template.hlsl")
         // TODO: split graph evaluation to grab just alpha dependencies first? tricky..
         $AlphaTest:     DoAlphaTest(surfaceDescription.Alpha, surfaceDescription.AlphaClipThreshold);
 
-        BuildSurfaceData(fragInputs, surfaceDescription, V, surfaceData);
+        BuildSurfaceData(fragInputs, surfaceDescription, V, posInput, surfaceData);
 
         // Builtin Data
         // For back lighting we use the oposite vertex normal 
