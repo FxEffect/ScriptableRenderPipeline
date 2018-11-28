@@ -303,6 +303,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 FabricMasterNode.AlbedoSlotId,
                 FabricMasterNode.SpecularOcclusionSlotId,
                 FabricMasterNode.NormalSlotId,
+                FabricMasterNode.BentNormalSlotId,
                 FabricMasterNode.SmoothnessSlotId,
                 FabricMasterNode.AmbientOcclusionSlotId,
                 FabricMasterNode.SpecularColorSlotId,
@@ -450,6 +451,11 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             if (masterNode.subsurfaceScattering.isOn)
             {
                 activeFields.Add("SurfaceDescription.SubsurfaceScattering");
+            }
+
+            if (masterNode.IsSlotConnected(FabricMasterNode.BentNormalSlotId) && pass.PixelShaderUsesSlot(FabricMasterNode.BentNormalSlotId))
+            {
+                activeFields.Add("BentNormal");
             }
 
             if (masterNode.IsSlotConnected(FabricMasterNode.TangentSlotId) && pass.PixelShaderUsesSlot(FabricMasterNode.TangentSlotId))

@@ -23,9 +23,9 @@ namespace UnityEditor.ShaderGraph
         public const int ColorSlotId = 0;
         public const int AlphaSlotId = 7;
         public const int AlphaThresholdSlotId = 8;
-        public const int DistortionSlotId = 9;
-        public const int DistortionBlurSlotId = 10;
-        public const int PositionSlotId = 11;
+        public const int PositionSlotId = 9;
+        public const int DistortionSlotId = 10;
+        public const int DistortionBlurSlotId = 11;
 
         [SerializeField]
         SurfaceType m_SurfaceType;
