@@ -47,7 +47,7 @@ Pass
     $SpecularOcclusionCustom:           #define _SPECULAR_OCCLUSION_CUSTOM 1
     $Specular.EnergyConserving:         #define _ENERGY_CONSERVING_SPECULAR 1
     $Specular.AA:                       #define _ENABLE_GEOMETRIC_SPECULAR_AA 1
-    $Decals:                            #define _DISABLE_DECALS 1
+    $DisableDecals:                     #define _DISABLE_DECALS 1
     $DisableSSR:                        #define _DISABLE_SSR 1
     //-------------------------------------------------------------------------------------
     // End Variant Definitions

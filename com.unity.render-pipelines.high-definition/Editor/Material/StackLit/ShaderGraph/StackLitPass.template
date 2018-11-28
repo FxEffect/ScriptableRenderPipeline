@@ -145,8 +145,8 @@ Pass
     $BlendMode.PreserveSpecular:                         #define _BLENDMODE_PRESERVE_SPECULAR_LIGHTING
     $AlphaFog:                                           #define _ENABLE_FOG_ON_TRANSPARENT
 
-    $Decals:                                            #define _DISABLE_DECALS
-    $DisableSSR:                                        #define _DISABLE_SSR
+    $DisableDecals:                                      #define _DISABLE_DECALS
+    $DisableSSR:                                         #define _DISABLE_SSR
 
     // StackLit shader_features:
 

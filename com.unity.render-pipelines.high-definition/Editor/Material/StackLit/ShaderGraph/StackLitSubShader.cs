@@ -736,9 +736,9 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             // Other property predicates:
             //
 
-            if (masterNode.receiveDecals.isOn)
+            if (!masterNode.receiveDecals.isOn)
             {
-                activeFields.Add("Decals");
+                activeFields.Add("DisableDecals");
             }
 
             if (!masterNode.receiveSSR.isOn)

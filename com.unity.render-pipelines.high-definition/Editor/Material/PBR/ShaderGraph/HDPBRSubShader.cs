@@ -422,9 +422,6 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 // opaque-only defines
             }
 
-            // By default PBR node receive decals
-            activeFields.Add("Decals");
-
             return activeFields;
         }
 
