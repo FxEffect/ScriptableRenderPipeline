@@ -92,12 +92,12 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             },
             PixelShaderSlots = new List<int>()
             {
-                StackLitMasterNode.AlphaSlotId,
-                StackLitMasterNode.AlphaClipThresholdSlotId
+                UnlitMasterNode.AlphaSlotId,
+                UnlitMasterNode.AlphaThresholdSlotId
             },
             VertexShaderSlots = new List<int>()
             {
-                StackLitMasterNode.PositionSlotId
+                UnlitMasterNode.PositionSlotId
             },
             UseInPreview = true
         };
@@ -143,18 +143,18 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             },
             PixelShaderSlots = new List<int>()
             {
-                StackLitMasterNode.AlphaSlotId,
-                StackLitMasterNode.AlphaClipThresholdSlotId
+                UnlitMasterNode.AlphaSlotId,
+                UnlitMasterNode.AlphaThresholdSlotId
             },
             VertexShaderSlots = new List<int>()
             {
-                StackLitMasterNode.PositionSlotId
+                UnlitMasterNode.PositionSlotId
             },
             UseInPreview = false,
 
             OnGeneratePassImpl = (IMasterNode node, ref Pass pass) =>
             {
-                var masterNode = node as StackLitMasterNode;
+                var masterNode = node as UnlitMasterNode;
 
                 int stencilWriteMaskMV = (int)HDRenderPipeline.StencilBitMask.ObjectVelocity;
                 int stencilRefMV = (int)HDRenderPipeline.StencilBitMask.ObjectVelocity;
@@ -200,7 +200,9 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
             OnGeneratePassImpl = (IMasterNode node, ref Pass pass) =>
             {
-                var masterNode = node as StackLitMasterNode;
+                // TODO: Support distortion on unlit shader
+                /*
+                var masterNode = node as UnlitMasterNode;
                 if (masterNode.distortionDepthTest.isOn)
                 {
                     pass.ZTestOverride = "ZTest LEqual";
@@ -219,6 +221,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                     pass.BlendOverride = "Blend DstColor Zero, DstAlpha Zero";
                     pass.BlendOpOverride = "BlendOp Add, Add";
                 }
+                */
             }
         };
 

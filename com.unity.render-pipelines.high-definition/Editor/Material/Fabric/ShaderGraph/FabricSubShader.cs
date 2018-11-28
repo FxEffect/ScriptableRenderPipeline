@@ -44,7 +44,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 FabricMasterNode.AnisotropySlotId,
                 FabricMasterNode.EmissionSlotId,
                 FabricMasterNode.AlphaSlotId,
-                FabricMasterNode.AlphaThresholdSlotId,
+                FabricMasterNode.AlphaClipThresholdSlotId,
             },
             VertexShaderSlots = new List<int>()
             {
@@ -74,7 +74,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             PixelShaderSlots = new List<int>()
             {
                 FabricMasterNode.AlphaSlotId,
-                FabricMasterNode.AlphaThresholdSlotId
+                FabricMasterNode.AlphaClipThresholdSlotId
             },
             VertexShaderSlots = new List<int>()
             {
@@ -102,7 +102,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             PixelShaderSlots = new List<int>()
             {
                 FabricMasterNode.AlphaSlotId,
-                FabricMasterNode.AlphaThresholdSlotId
+                FabricMasterNode.AlphaClipThresholdSlotId
             },
             VertexShaderSlots = new List<int>()
             {
@@ -113,7 +113,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
         Pass m_PassDepthForwardOnly = new Pass()
         {
-            Name = "sDepthForwardOnly",
+            Name = "DepthOnly",
             LightMode = "DepthForwardOnly",
             TemplateName = "FabricPass.template",
             MaterialName = "Fabric",
@@ -135,7 +135,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 FabricMasterNode.NormalSlotId,
                 FabricMasterNode.SmoothnessSlotId,
                 FabricMasterNode.AlphaSlotId,
-                FabricMasterNode.AlphaThresholdSlotId
+                FabricMasterNode.AlphaClipThresholdSlotId
             },
 
             RequiredFields = new List<string>()
@@ -227,7 +227,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 FabricMasterNode.NormalSlotId,
                 FabricMasterNode.SmoothnessSlotId,
                 FabricMasterNode.AlphaSlotId,
-                FabricMasterNode.AlphaThresholdSlotId
+                FabricMasterNode.AlphaClipThresholdSlotId
             },
             VertexShaderSlots = new List<int>()
             {
@@ -237,7 +237,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
             OnGeneratePassImpl = (IMasterNode node, ref Pass pass) =>
             {
-                var masterNode = node as StackLitMasterNode;
+                var masterNode = node as FabricMasterNode;
 
                 int stencilWriteMaskMV = (int)HDRenderPipeline.StencilBitMask.ObjectVelocity;
                 int stencilRefMV = (int)HDRenderPipeline.StencilBitMask.ObjectVelocity;
@@ -312,7 +312,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 FabricMasterNode.AnisotropySlotId,
                 FabricMasterNode.EmissionSlotId,
                 FabricMasterNode.AlphaSlotId,
-                FabricMasterNode.AlphaThresholdSlotId,
+                FabricMasterNode.AlphaClipThresholdSlotId,
             },
             VertexShaderSlots = new List<int>()
             {
@@ -392,7 +392,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
             if (masterNode.alphaTest.isOn)
             {
-                if (pass.PixelShaderUsesSlot(StackLitMasterNode.AlphaClipThresholdSlotId))
+                if (pass.PixelShaderUsesSlot(FabricMasterNode.AlphaClipThresholdSlotId))
                 {
                     activeFields.Add("AlphaTest");
                 }
@@ -473,11 +473,11 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                     break;
             }
 
-            if (pass.PixelShaderUsesSlot(HDLitMasterNode.AmbientOcclusionSlotId))
+            if (pass.PixelShaderUsesSlot(FabricMasterNode.AmbientOcclusionSlotId))
             {
-                var occlusionSlot = masterNode.FindSlot<Vector1MaterialSlot>(HDLitMasterNode.AmbientOcclusionSlotId);
+                var occlusionSlot = masterNode.FindSlot<Vector1MaterialSlot>(FabricMasterNode.AmbientOcclusionSlotId);
 
-                bool connected = masterNode.IsSlotConnected(HDLitMasterNode.AmbientOcclusionSlotId);
+                bool connected = masterNode.IsSlotConnected(FabricMasterNode.AmbientOcclusionSlotId);
                 if (connected || occlusionSlot.value != occlusionSlot.defaultValue)
                 {
                     activeFields.Add("AmbientOcclusion");

@@ -59,7 +59,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
             OnGeneratePassImpl = (IMasterNode node, ref Pass pass) =>
             {
-                var masterNode = node as HDLitMasterNode;
+                var masterNode = node as PBRMasterNode;
                 pass.StencilOverride = new List<string>()
                 {
                     "// Stencil setup",
@@ -73,7 +73,10 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 };
 
                 pass.ExtraDefines.Remove("#define SHADERPASS_GBUFFER_BYPASS_ALPHA_TEST");
-                if (masterNode.surfaceType == SurfaceType.Opaque && masterNode.alphaTest.isOn)
+
+                if (masterNode.surfaceType == SurfaceType.Opaque &&
+                    (masterNode.IsSlotConnected(PBRMasterNode.AlphaThresholdSlotId) ||
+                     masterNode.GetInputSlots<Vector1MaterialSlot>().First(x => x.id == PBRMasterNode.AlphaThresholdSlotId).value > 0.0f))
                 {
                     pass.ExtraDefines.Add("#define SHADERPASS_GBUFFER_BYPASS_ALPHA_TEST");
                     pass.ZTestOverride = "ZTest Equal";
@@ -331,7 +334,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
             OnGeneratePassImpl = (IMasterNode node, ref Pass pass) =>
             {
-                var masterNode = node as HDLitMasterNode;
+                var masterNode = node as PBRMasterNode;
                 pass.StencilOverride = new List<string>()
                 {
                     "// Stencil setup",
@@ -345,7 +348,9 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 };
 
                 pass.ExtraDefines.Remove("#define SHADERPASS_FORWARD_BYPASS_ALPHA_TEST");
-                if (masterNode.surfaceType == SurfaceType.Opaque && masterNode.alphaTest.isOn)
+                if (masterNode.surfaceType == SurfaceType.Opaque &&
+                    (masterNode.IsSlotConnected(PBRMasterNode.AlphaThresholdSlotId) ||
+                     masterNode.GetInputSlots<Vector1MaterialSlot>().First(x => x.id == PBRMasterNode.AlphaThresholdSlotId).value > 0.0f))
                 {
                     pass.ExtraDefines.Add("#define SHADERPASS_FORWARD_BYPASS_ALPHA_TEST");
                     pass.ZTestOverride = "ZTest Equal";
