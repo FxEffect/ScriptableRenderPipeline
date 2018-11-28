@@ -217,16 +217,14 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             LightMode = "DepthOnly",
             TemplateName = "HDLitPass.template",
             MaterialName = "Lit",
-
+            ShaderPassName = "SHADERPASS_DEPTH_ONLY",
             ZWriteOverride = "ZWrite On",
 
             ExtraDefines = new List<string>()
             {
                 "#pragma multi_compile _ WRITE_NORMAL_BUFFER",
                 "#pragma multi_compile _ WRITE_MSAA_DEPTH"
-            },
-
-            ShaderPassName = "SHADERPASS_DEPTH_ONLY",
+            },            
 
             Includes = new List<string>()
             {
@@ -283,7 +281,21 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             },
             RequiredFields = new List<string>()
             {
+                "AttributesMesh.normalOS",
+                "AttributesMesh.tangentOS",     // Always present as we require it also in case of Variants lighting
+                "AttributesMesh.uv0",
+                "AttributesMesh.uv1",
+                "AttributesMesh.color",
+                "AttributesMesh.uv2",           // SHADERPASS_LIGHT_TRANSPORT always uses uv2
+                "AttributesMesh.uv3",           // DEBUG_DISPLAY
+
+                "FragInputs.worldToTangent",
                 "FragInputs.positionRWS",
+                "FragInputs.texCoord0",
+                "FragInputs.texCoord1",
+                "FragInputs.texCoord2",
+                "FragInputs.texCoord3",
+                "FragInputs.color",
             },
             StencilOverride = new List<string>()
             {
@@ -525,8 +537,8 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                     "// Stencil setup",
                     "Stencil",
                     "{",
-                    "   WriteMask " + masterNode.GetStencilWriteMask().ToString(),
-                    "   Ref  " + masterNode.GetStencilRef().ToString(),
+                    string.Format("   WriteMask {0}", (int) HDRenderPipeline.StencilBitMask.LightingMask),
+                    string.Format("   Ref  {0}", masterNode.RequiresSplitLighting() ? (int)StencilLightingUsage.SplitLighting : (int)StencilLightingUsage.RegularLighting),
                     "   Comp Always",
                     "   Pass Replace",
                     "}"
@@ -608,8 +620,8 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                     {
                         activeFields.Add("DoubleSided.Mirror");
                     }
-
-                    activeFields.Add("FragInputs.isFrontFace");     // will need this for determining normal flip mode
+                    // Important: the following is used in SharedCode.template.hlsl for determining the normal flip mode
+                    activeFields.Add("FragInputs.isFrontFace");
                 }
             }
 

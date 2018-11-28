@@ -107,11 +107,11 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             TemplateName = "StackLitPass.template",
             MaterialName = "StackLit",
             ShaderPassName = "SHADERPASS_DEPTH_ONLY",
+            ColorMaskOverride = "ColorMask 0",
             ExtraDefines = new List<string>()
             {
                 "#define SCENESELECTIONPASS",
-            },
-            ColorMaskOverride = "ColorMask 0",
+            },            
             Includes = new List<string>()
             {
                 "#include \"Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/ShaderPass/ShaderPassDepthOnly.hlsl\"",
@@ -173,6 +173,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             },
             PixelShaderSlots = new List<int>()
             {
+                // see AddPixelShaderSlotsForWriteNormalBufferPasses
                 StackLitMasterNode.AlphaSlotId,
                 StackLitMasterNode.AlphaClipThresholdSlotId
             },
@@ -180,7 +181,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             {
                 StackLitMasterNode.PositionSlotId
             },
-            UseInPreview = true,
+            UseInPreview = false,
 
             OnGeneratePassImpl = (IMasterNode node, ref Pass pass) =>
             {
@@ -227,14 +228,26 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             },
             RequiredFields = new List<string>()
             {
+                "AttributesMesh.normalOS",
+                "AttributesMesh.tangentOS",     // Always present as we require it also in case of Variants lighting
+                "AttributesMesh.uv0",
+                "AttributesMesh.uv1",
+                "AttributesMesh.color",
+                "AttributesMesh.uv2",           // SHADERPASS_LIGHT_TRANSPORT always uses uv2
+                "AttributesMesh.uv3",           // DEBUG_DISPLAY
+
                 "FragInputs.worldToTangent",
                 "FragInputs.positionRWS",
+                "FragInputs.texCoord0",
                 "FragInputs.texCoord1",
-                "FragInputs.texCoord2"
+                "FragInputs.texCoord2",
+                "FragInputs.texCoord3",
+                "FragInputs.color",
             },
 
             PixelShaderSlots = new List<int>()
             {
+                // see AddPixelShaderSlotsForWriteNormalBufferPasses
                 StackLitMasterNode.AlphaSlotId,
                 StackLitMasterNode.AlphaClipThresholdSlotId
             },
@@ -275,9 +288,6 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             TemplateName = "StackLitPass.template",
             MaterialName = "StackLit",
             ShaderPassName = "SHADERPASS_DISTORTION",
-            BlendOverride = "Blend One One, One One",   // [_DistortionSrcBlend] [_DistortionDstBlend], [_DistortionBlurSrcBlend] [_DistortionBlurDstBlend]
-            BlendOpOverride = "BlendOp Add, Add",       // Add, [_DistortionBlurBlendOp]
-            ZTestOverride = "ZTest LEqual",             // [_ZTestModeDistortion]
             ZWriteOverride = "ZWrite Off",
             Includes = new List<string>()
             {
@@ -310,9 +320,9 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 if (masterNode.distortionMode == DistortionMode.Add)
                 {
                     pass.BlendOverride = "Blend One One, One One";
-                    pass.BlendOpOverride = "BlendOp Add, Max";
+                    pass.BlendOpOverride = "BlendOp Add, Add";
                 }
-                else if (masterNode.distortionMode == DistortionMode.Multiply)
+                else // if (masterNode.distortionMode == DistortionMode.Multiply)
                 {
                     pass.BlendOverride = "Blend DstColor Zero, DstAlpha Zero";
                     pass.BlendOpOverride = "BlendOp Add, Add";
@@ -345,10 +355,21 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             },
             RequiredFields = new List<string>()
             {
+                "AttributesMesh.normalOS",
+                "AttributesMesh.tangentOS",     // Always present as we require it also in case of Variants lighting
+                "AttributesMesh.uv0",
+                "AttributesMesh.uv1",
+                "AttributesMesh.color",
+                "AttributesMesh.uv2",           // SHADERPASS_LIGHT_TRANSPORT always uses uv2
+                "AttributesMesh.uv3",           // DEBUG_DISPLAY
+
                 "FragInputs.worldToTangent",
                 "FragInputs.positionRWS",
+                "FragInputs.texCoord0",
                 "FragInputs.texCoord1",
-                "FragInputs.texCoord2"
+                "FragInputs.texCoord2",
+                "FragInputs.texCoord3",
+                "FragInputs.color",
             },
             PixelShaderSlots = new List<int>()
             {
@@ -398,7 +419,6 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                     "// Stencil setup",
                     "Stencil",
                     "{",
-                    //"   WriteMask 7",
                     string.Format("   WriteMask {0}", (int) HDRenderPipeline.StencilBitMask.LightingMask),
                     string.Format("   Ref  {0}", masterNode.RequiresSplitLighting() ? (int)StencilLightingUsage.SplitLighting : (int)StencilLightingUsage.RegularLighting),
                     "   Comp Always",
@@ -407,7 +427,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 };
 
                 pass.ExtraDefines.Remove("#define SHADERPASS_FORWARD_BYPASS_ALPHA_TEST");
-                if (masterNode.surfaceType == SurfaceType.Opaque)
+                if (masterNode.surfaceType == SurfaceType.Opaque && masterNode.alphaTest.isOn)
                 {
                     pass.ExtraDefines.Add("#define SHADERPASS_FORWARD_BYPASS_ALPHA_TEST");
                     pass.ZTestOverride = "ZTest Equal";
@@ -416,15 +436,6 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 {
                     pass.ZTestOverride = null;
                 }
-                // We dont have a TransparentBackface pass in StackLit for now.
-                //if (masterNode.surfaceType == SurfaceType.Transparent && masterNode.backThenFrontRendering.isOn)
-                //{
-                //    pass.CullOverride = "Cull Back";
-                //}
-                //else
-                //{
-                //    pass.CullOverride = null;
-                //}
             }
         };
 
@@ -726,20 +737,12 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
             if (masterNode.receiveDecals.isOn)
             {
-                activeFields.Add("ReceiveDecals");
-            }
-            else
-            {
-                activeFields.Add("DontReceiveDecals");
+                activeFields.Add("Decals");
             }
 
-            if (masterNode.receiveSSR.isOn)
+            if (!masterNode.receiveSSR.isOn)
             {
-                activeFields.Add("ReceiveSSR");
-            }
-            else
-            {
-                activeFields.Add("DontReceiveSSR");
+                activeFields.Add("DisableSSR");
             }
 
             // Note here we combine an "enable"-like predicate and the $SurfaceDescription.(slotname) predicate
@@ -872,18 +875,22 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
                 bool distortionActive = transparent && masterNode.distortion.isOn;
 
+                GenerateShaderPassLit(masterNode, m_PassMETA, mode, subShader, sourceAssetDependencyPaths);
+                GenerateShaderPassLit(masterNode, m_PassShadowCaster, mode, subShader, sourceAssetDependencyPaths);
                 GenerateShaderPassLit(masterNode, m_SceneSelectionPass, mode, subShader, sourceAssetDependencyPaths);
+
                 if (opaque)
                 {
                     GenerateShaderPassLit(masterNode, m_PassDepthForwardOnly, mode, subShader, sourceAssetDependencyPaths);
                 }
+
                 GenerateShaderPassLit(masterNode, m_PassMotionVectors, mode, subShader, sourceAssetDependencyPaths);
-                GenerateShaderPassLit(masterNode, m_PassMETA, mode, subShader, sourceAssetDependencyPaths);
-                GenerateShaderPassLit(masterNode, m_PassShadowCaster, mode, subShader, sourceAssetDependencyPaths);
+
                 if (distortionActive)
                 {
                     GenerateShaderPassLit(masterNode, m_PassDistortion, mode, subShader, sourceAssetDependencyPaths);
                 }
+
                 GenerateShaderPassLit(masterNode, m_PassForwardOnly, mode, subShader, sourceAssetDependencyPaths);
             }
 

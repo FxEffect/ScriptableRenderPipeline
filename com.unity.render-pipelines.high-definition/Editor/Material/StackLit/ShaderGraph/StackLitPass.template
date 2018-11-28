@@ -90,10 +90,8 @@ Pass
     // $RecomputeStackPerLight:
     // $ShadeBaseUsingRefractedAngles:
     // $StackLitDebug:
-    // $ReceiveDecals:
-    // $ReceiveSSR:
-    // $DontReceiveDecals:
-    // $DontReceiveSSR:
+    // Decals:
+    // DisableSSR:
     // $SpecularOcclusion:
 
     //
@@ -147,8 +145,8 @@ Pass
     $BlendMode.PreserveSpecular:                         #define _BLENDMODE_PRESERVE_SPECULAR_LIGHTING
     $AlphaFog:                                           #define _ENABLE_FOG_ON_TRANSPARENT
 
-    $DontReceiveDecals:                                  #define _DISABLE_DECALS
-    $DontReceiveSSR:                                     #define _DISABLE_SSR
+    $Decals:                                            #define _DISABLE_DECALS
+    $DisableSSR:                                        #define _DISABLE_SSR
 
     // StackLit shader_features:
 

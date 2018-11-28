@@ -116,19 +116,17 @@ $include("SharedCode.template.hlsl")
 
         // copy across graph values, if defined
         $SurfaceDescription.Color: surfaceData.color = surfaceDescription.Color;
+
+#if defined(DEBUG_DISPLAY)
+        if (_DebugMipMapMode != DEBUGMIPMAPMODE_NONE)
+        {
+            // TODO
+        }
+#endif
     }
 
     void GetSurfaceAndBuiltinData(FragInputs fragInputs, float3 V, inout PositionInputs posInput, out SurfaceData surfaceData, out BuiltinData builtinData)
     {
-        // This applies the double sided tangent space correction
-        // Must match /Runtime/Material/MaterialUtilities.hlsl:ApplyDoubleSidedFlipOrMirror()
-        $DoubleSided:            if (!fragInputs.isFrontFace)
-        $DoubleSided:            {
-        $DoubleSided.Flip:           fragInputs.worldToTangent[1] = -fragInputs.worldToTangent[1];     // bitangent
-        $DoubleSided.Flip:           fragInputs.worldToTangent[2] = -fragInputs.worldToTangent[2];     // normal
-        $DoubleSided.Mirror:         fragInputs.worldToTangent[2] = -fragInputs.worldToTangent[2];     // normal
-        $DoubleSided:            }
-
         SurfaceDescriptionInputs surfaceDescriptionInputs = FragInputsToSurfaceDescriptionInputs(fragInputs, V);
         SurfaceDescription surfaceDescription = SurfaceDescriptionFunction(surfaceDescriptionInputs);
 
